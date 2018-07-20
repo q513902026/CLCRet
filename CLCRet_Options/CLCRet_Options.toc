@@ -1,0 +1,24 @@
+## Interface: 80000
+## Title: CLCRet Options
+## Notes: A LoD option menu for CLCRet
+## Author: Calcute
+## Dependencies: CLCRet
+## LoadOnDemand: 1
+## X-Curse-Packaged-Version: v.1.3.03.025
+## X-Curse-Project-Name: Retribution FCFS helper (clcret)
+## X-Curse-Project-ID: clcret
+## X-Curse-Repository-ID: wow/clcret/mainline
+## X-Curse-Packaged-Version: v.1.4.01.003
+## X-Curse-Project-Name: Retribution FCFS helper (clcret)
+## X-Curse-Project-ID: clcret
+## X-Curse-Repository-ID: wow/clcret/mainline
+## X-Curse-Packaged-Version: v.1.6.03.002
+## X-Curse-Project-Name: Retribution FCFS helper (clcret)
+## X-Curse-Project-ID: clcret
+## X-Curse-Repository-ID: wow/clcret/mainline
+Locales\zhCN.lua
+#@no-lib-strip@
+embeds.xml
+#@end-no-lib-strip@
+
+options.lua
