@@ -6,7 +6,7 @@ setmetatable(L, {__index=defaultFunc});
 -- don't load if class is wrong
 local _, class = UnitClass("player")
 if class ~= "PALADIN" then return end
-
+local LibAuraUtil = LibStub:GetLibrary("LibAuraUtil-1.0")
 local _, xmod = ...
 
 xmod.retmodule = {}
@@ -426,7 +426,7 @@ local function GetBuff(buff)
 	local left = 0
 	local _, expires
 	if tonumber(buff) then buff = GetSpellInfo(buff) end 
-	_, _, _, _, _, expires = AuraUtil.FindAuraByName( buff, "player", "PLAYER")
+	_, _, _, _, _, expires = LibAuraUtil.FindBuffBySpell( buff, "player", "PLAYER")
 	if expires then
 		left = max(0, expires - s_ctime - s_gcd)
 	end
@@ -437,7 +437,7 @@ local function GetDebuff(debuff)
 	local left = 0
 	local _, expires
 	if tonumber(debuff) then debuff = GetSpellInfo(debuff) end 
-	_, _, _, _, _, expires = AuraUtil.FindAuraByName( debuff, "target", "PLAYER")
+	_, _, _, _, _, expires =  LibAuraUtil.FindDebuffBySpell( debuff, "target", "PLAYER")
 	if expires then
 		left = max(0, expires - s_ctime - s_gcd)
 	end

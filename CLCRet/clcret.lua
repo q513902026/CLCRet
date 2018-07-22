@@ -9,6 +9,7 @@ if trueclass ~= "PALADIN" then return end
 local GetTime = GetTime
 
 clcret = LibStub("AceAddon-3.0"):NewAddon("clcret", "AceEvent-3.0", "AceConsole-3.0")
+local LibAuraUtil = LibStub:GetLibrary("LibAuraUtil-1.0")
 
 local MAX_AURAS = 20
 local BGTEX = "Interface\\AddOns\\clcret\\textures\\minimalist"
@@ -577,7 +578,7 @@ function clcret:AuraButtonExecPlayerMissingBuff()
 		button.hasTexture = true
 	end
 	if tonumber(data.spell) then data.spell = GetSpellInfo(data.spell) end 
-	local name, icon, count, debuffType, duration, expirationTime, caster = AuraUtil.FindAuraByName( data.spell,"player")
+	local name, icon, count, debuffType, duration, expirationTime, caster = LibAuraUtil.FindBuffBySpell( data.spell,"player")
 	if not name then
 		button:Show()
 	else
@@ -654,7 +655,7 @@ function clcret:AuraButtonExecGenericBuff()
 		return
 	end
 	if tonumber(data.spell) then data.spell = GetSpellInfo(data.spell) end 
-	local name, icon, count, debuffType, duration, expirationTime, caster = AuraUtil.FindAuraByName(data.spell,data.unit)
+	local name, icon, count, debuffType, duration, expirationTime, caster = LibAuraUtil.FindBuffBySpell(data.spell,data.unit)
 	if name then
 		if data.byPlayer and (caster ~= "player") then
 			-- player required and not found
@@ -696,7 +697,7 @@ function clcret:AuraButtonExecGenericDebuff()
 		return
 	end
 	if tonumber(data.spell) then data.spell = GetSpellInfo(data.spell) end 
-	local name, icon, count, debuffType, duration, expirationTime, caster = AuraUtil.FindAuraByName(data.spell,data.unit)
+	local name, icon, count, debuffType, duration, expirationTime, caster = LibAuraUtil.FindDebuffBySpell(data.spell,data.unit)
 	if name then
 		if data.byPlayer and (caster ~= "player") then
 			button:Hide()
