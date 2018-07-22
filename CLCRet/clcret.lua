@@ -576,7 +576,7 @@ function clcret:AuraButtonExecPlayerMissingBuff()
 		button.texture:SetTexture(GetSpellTexture(data.spell))
 		button.hasTexture = true
 	end
-	
+	if tonumber(data.spell) then data.spell = GetSpellInfo(data.spell) end 
 	local name, icon, count, debuffType, duration, expirationTime, caster = AuraUtil.FindAuraByName( data.spell,"player")
 	if not name then
 		button:Show()
@@ -653,7 +653,7 @@ function clcret:AuraButtonExecGenericBuff()
 		button:Hide()
 		return
 	end
-	
+	if tonumber(data.spell) then data.spell = GetSpellInfo(data.spell) end 
 	local name, icon, count, debuffType, duration, expirationTime, caster = AuraUtil.FindAuraByName(data.spell,data.unit)
 	if name then
 		if data.byPlayer and (caster ~= "player") then
@@ -695,7 +695,7 @@ function clcret:AuraButtonExecGenericDebuff()
 		button:Hide()
 		return
 	end
-	
+	if tonumber(data.spell) then data.spell = GetSpellInfo(data.spell) end 
 	local name, icon, count, debuffType, duration, expirationTime, caster = AuraUtil.FindAuraByName(data.spell,data.unit)
 	if name then
 		if data.byPlayer and (caster ~= "player") then

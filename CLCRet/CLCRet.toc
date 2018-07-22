@@ -3,7 +3,7 @@
 ## Notes: Retribution FCFS helper
 ## Author: Calcute of Ravencrest
 ## SavedVariables: clcretDB
-## X-Curse-Packaged-Version: r252.pre
+## X-Curse-Packaged-Version: r252
 ## X-Curse-Project-Name: Retribution FCFS helper (clcret)
 ## X-Curse-Project-ID: clcret
 ## X-Curse-Repository-ID: wow/clcret/mainline

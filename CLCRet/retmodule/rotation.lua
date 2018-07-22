@@ -26,7 +26,7 @@ if clcInfo then debug = clcInfo.debug end
 xmod.version = 8000001
 xmod.defaults = {
 	version = xmod.version,
-	prio = "boj cs2 cs",
+	prio = "inq es tv_zy tv_cp tv5 w1 boj j how cs2 cons cs tv4 tv",
 	rangePerSkill = false,
 	howclash = 0, -- priority time for hammer of wrath
 	csclash = 0, -- priority time for cs
@@ -47,6 +47,7 @@ local idJusticarsVengeance = 215661
 local idWakeOfAshes = 255937
 local idExecutionSentence = 267798
 local idhammerofwrath =24275
+local idInquisition =84963
 
 -- tier 4
 local idBladeOfJustice = 184575
@@ -59,6 +60,9 @@ local ln_buff_TheFiresOfJustice = GetSpellInfo(203316)
 local ln_buff_DivinePurpose = GetSpellInfo(223817)
 local ln_buff_Crusade = GetSpellInfo(231895)
 local ln_buff_ChengPiFeng = GetSpellInfo(207635)
+local ln_buff_Inquisition = GetSpellInfo(84963)
+local ln_buff_ZhengYiCaiJue = GetSpellInfo(267610)
+
 
 -- debuffs
 
@@ -66,7 +70,7 @@ local ln_buff_ChengPiFeng = GetSpellInfo(207635)
 local s1, s2
 local s_ctime, s_otime, s_gcd, s_hp, s_dp, s_aw, s_ss, s_dc, s_fv, s_bc, s_haste, s_in_execute_range
 local s_CrusaderStrikeCharges = 0
-local s_buff_DivinePurpose, s_buff_TheFiresOfJustice, s_buff_Crusade, s_buff_ChengPiFeng
+local s_buff_DivinePurpose, s_buff_TheFiresOfJustice, s_buff_Crusade, s_buff_ChengPiFeng, s_buff_Inquisition, s_buff_ZhengYiCaiJue
 local s_debuff_Judgement
 local s_debuff_ExecutionSentence
 
@@ -103,21 +107,45 @@ end
 
 -- actions ---------------------------------------------------------------------
 local actions = {
-	--3	Justicar's Vengeance	Cast Justicar's Vengeance @5 Holy Power with Divine Purpose proc and Judgment up. Or DP.
+         --1	Justicar's Vengeance	Cast Justicar's Vengeance @5 Holy Power with Divine Purpose 
 	jv_dp = {
 		id = idJusticarsVengeance,
 		GetCD = function()
-			if ((s1 ~= idJusticarsVengeance) and (s_buff_DivinePurpose > 0)) then
+			if ((s_buff_DivinePurpose > 0)) then
 				return 0
 			end
 			return 100
 		end,
 		UpdateStatus = function()
+			s_ctime = s_ctime + s_gcd + 1.5
+			if (s_buff_DivinePurpose > 0) then
+				s_buff_DivinePurpose = 0
+			end
 		end,
-		info = L["Justicar's Vengeance with DP and Judgement up"],
-		reqTalent = 22483,
+		info = L["Justicar's Vengeance with DP"],
+                reqTalent = 22483,
 	},
-	--4	Templar's Verdict	Cast Templar's Verdict with Judgment up and @5 Holy Power.
+         --2	Justicar's Vengeance Cast Templar's Verdict with Judgment up and @5 Holy Power.
+	jv_5 = {
+		id = idJusticarsVengeance,
+		GetCD = function()
+			if ((s_hp >= 5)) then
+				return 0
+			end
+			return 100
+		end,
+		UpdateStatus = function()
+			s_ctime = s_ctime + s_gcd + 1.5
+			if (s_buff_DivinePurpose > 0) then
+				s_buff_DivinePurpose = 0
+			else
+				s_hp = max(0, s_hp - 5)
+			end
+		end,
+		info = L["Justicar's Vengeance >= 5"],
+                reqTalent = 22483,
+	},
+         --3	Templar's Verdict	Cast Templar's Verdict with Judgment up and @5 Holy Power.
 	tv5 = {
 		id = idTemplarsVerdict,
 		GetCD = function()
@@ -136,7 +164,7 @@ local actions = {
 		end,
 		info = L["Templar's Verdict with HP >= 5"],
 	},
-	--5	Crusader Strike/Zeal	Cast Crusader Strike or Zeal if @2 charges. Generates 1 Holy Power.
+         --4	Crusader Strike/Zeal	Cast Crusader Strike or Zeal if @2 charges. Generates 1 Holy Power.
 	cs2 = {
 		id = idCrusaderStrike,
 		GetCD = function()
@@ -152,36 +180,7 @@ local actions = {
 		end,
 		info = L["Crusader Strike stacks = 2"],
 	},
-	--6	Blade of Justice	Cast Blade of Justice/T4 talent @3 or less Holy Power. Generates 2 Holy Power.
-	boj = {
-		id = idBladeOfJustice,
-		GetCD = function()
-			if ((s1 ~= idBladeOfJustice) and (s_hp <= 3)) then
-				return GetCooldown(idBladeOfJustice)
-			end
-			return 100
-		end,
-		UpdateStatus = function()
-			s_ctime = s_ctime + s_gcd + 1.5
-			s_hp = min(5, s_hp + 2)
-		end,
-		info = L["Blade of Justice"],
-	},
-	--7	Consecration	Cast Consecration if talented.
-	cons = {
-		id = idConsecration,
-		GetCD = function()
-			if (s1 ~= idConsecration) then return GetCooldown(idConsecration)
-			end
-			return 100
-		end,
-		UpdateStatus = function()
-			s_ctime = s_ctime + s_gcd + 1.5
-		end,
-		info = L["Consecration"],
-                reqTalent = 22182,
-	},
-	--8	Crusader Strike/Zeal	Cast Crusader Strike or Zeal if @1 charge. Generates 1 Holy Power.
+          --5	 Crusader Strike/Zeal	Cast Crusader Strike or Zeal if @1 charge. Generates 1 Holy Power.
 	cs = {
 		id = idCrusaderStrike,
 		GetCD = function()
@@ -198,7 +197,37 @@ local actions = {
 		end,
 		info = L["Crusader Strike"],
 	},
-	--9	Templar's Verdict	Cast with Judgment up and @3 Holy Power when there is nothing else to cast.
+         --6  Blade of Justice	Cast Blade of Justice/T4 talent @3 or less Holy Power. Generates 2 Holy Power.
+	boj = {
+		id = idBladeOfJustice,
+		GetCD = function()
+			if ((s1 ~= idBladeOfJustice) and (s_hp <= 3)) then
+				return GetCooldown(idBladeOfJustice)
+			end
+			return 100
+		end,
+		UpdateStatus = function()
+			s_ctime = s_ctime + s_gcd + 1.5
+			s_hp = min(5, s_hp + 2)
+		end,
+		info = L["Blade of Justice"],
+	},
+         --7	Consecration	Cast Consecration if talented.
+	cons = {
+		id = idConsecration,
+		GetCD = function()
+			if (s1 ~= idConsecration) then return GetCooldown(idConsecration)
+			end
+			return 100
+		end,
+		UpdateStatus = function()
+			s_ctime = s_ctime + s_gcd + 1.5
+                                                s_hp = min(5, s_hp + 1)
+		end,
+		info = L["Consecration"],
+                reqTalent = 22182,
+	},
+         --8	Templar's Verdict	Cast with Judgment up and @3 Holy Power when there is nothing else to cast.
 	tv = {
 		id = idTemplarsVerdict,
 		GetCD = function()
@@ -215,9 +244,9 @@ local actions = {
 				s_hp = max(0, s_hp - 3)
 			end
 		end,
-		info = L["Templar's Verdict HP >= 3 and Judgement debuff up"],
+		info = L["Templar's Verdict HP >= 3"],
 	},
-        --10	Judgment	Keep Judgment on cooldown @4+ Holy Power and/or DP procs.
+        --9	Judgment	Keep Judgment on cooldown @4+ Holy Power and/or DP procs.
 	j = {
 		id = idJudgement,
                 GetCD = function()
@@ -227,11 +256,11 @@ local actions = {
 		end,
 		UpdateStatus = function()
 			s_ctime = s_ctime + s_gcd + 1.5
-			s_debuff_Judgement = 8
+			s_hp = min(5, s_hp + 1)
 		end,
-		info = L["Judgement when 4 Holy Power"],
+		info = L["Judgement"],
 	},
-        --12	Wake of Ashes
+        --10	Wake of Ashes
 	w1 = {
 		id = idWakeOfAshes,
 		GetCD = function()
@@ -246,7 +275,7 @@ local actions = {
 		info = L["Wake of Ashes when <= 1 Holy Power"],
         reqTalent = 22183,
         },
-        --13	Wake of Ashes
+        --11	Wake of Ashes
 	w = {
 		id = idWakeOfAshes,
 		GetCD = function()
@@ -261,11 +290,11 @@ local actions = {
 		info = L["Wake of Ashes when 0 Holy Power"],
         reqTalent = 22183,
         },
-        --19	Templar's Verdict        Templar's Verdict HP >= 3 and Judgement debuff and ChengPiFeng time < 2s
+        --12	Templar's Verdict        Templar's Verdict HP >= 3 and Judgement debuff and ChengPiFeng time < 2s
 	tv_cp = {
 		id = idTemplarsVerdict,
 		GetCD = function()
-			if ((s_debuff_Judgement > 0) and (s_hp >= 3) and (s_buff_ChengPiFeng > 0) and (s_buff_ChengPiFeng < 2)) then
+			if ((s_hp >= 3) and (s_buff_ChengPiFeng > 0) and (s_buff_ChengPiFeng < 2)) then
 				return 0
 			end
 			return 100
@@ -278,13 +307,13 @@ local actions = {
 				s_hp = max(0, s_hp - 3)
 			end
 		end,
-		info = L["Templar's Verdict HP >= 3 and Judgement debuff and ChengPiFeng time < 2s "],
+		info = L["Templar's Verdict HP >= 3 and ChengPiFeng time < 2s "],
 	},
-        --20	Execution Sentence
-	es4 = {
+        --13	Execution Sentence
+	es = {
 		id = idExecutionSentence,
 		GetCD = function()
-			if ((s_hp >= 4)) then
+			if ((s_hp >= 3)) then
 				return GetCooldown(idExecutionSentence)
 			end
 			return 100
@@ -297,14 +326,14 @@ local actions = {
 				s_hp = max(0, s_hp - 3)
 			end
 		end,
-		info = L["Execution Sentence HP >= 4"],
+		info = L["Execution Sentence HP >= 3"],
                 reqTalent = 22175,
 	},
-        --25	Templar's Verdict
+        --14 Templar's Verdict
 	tv4 = {
 		id = idTemplarsVerdict,
 		GetCD = function()
-			if ((s_debuff_Judgement > 0) and (s_hp >= 4)) then
+			if ((s_hp >= 4)) then
 				return 0
 			end
 			return 100
@@ -319,7 +348,63 @@ local actions = {
 		end,
 		info = L["Templar's Verdict with HP >= 4"],
 	},
-}
+         --15 hammer of wrath
+                 how = {
+		id = idhammerofwrath,
+		GetCD = function()
+                                                if IsUsableSpell(idhammerofwrath) and (s1 ~= idhammerofwrath) 
+                                                              then return GetCooldown(idhammerofwrath)
+			end
+			return 100
+		end,
+		UpdateStatus = function()
+			s_ctime = s_ctime + s_gcd + 1.5
+                                                s_hp = min(5, s_hp + 1)
+		end,
+		info = L["Hammer of Wrath"],
+                reqTalent = 22593,
+	},
+        --16 Inquisition
+               inq = {
+	                id = idInquisition,
+		GetCD = function()
+			if ((s_hp >= 3) and (s_buff_Inquisition < 5)) then
+				return 0
+			end
+			return 100
+		end,
+		UpdateStatus = function()
+			s_ctime = s_ctime + s_gcd + 1.5
+			if (s_buff_DivinePurpose > 0) then
+				s_buff_DivinePurpose = 0
+			else
+				s_hp = max(0, s_hp - 3)
+			end
+		end,
+		info = L["Inquisition when s_buff_Inquisition < 5"],
+                reqTalent = 22634,
+	},
+         --17	 Templar's Verdict        
+	tv_zy = {
+		id = idTemplarsVerdict,
+		GetCD = function()
+			if ((s_hp >= 3) and (s_buff_ZhengYiCaiJue > 0) and (s_buff_ZhengYiCaiJue < 2)) then
+				return 0
+			end
+			return 100
+		end,
+		UpdateStatus = function()
+			s_ctime = s_ctime + s_gcd + 1.5
+			if (s_buff_DivinePurpose > 0) then
+				s_buff_DivinePurpose = 0
+			else
+				s_hp = max(0, s_hp - 3)
+			end
+		end,
+		info = L["Templar's Verdict HP >= 3 and ZhengYiCaiJue time < 2s "],
+                reqTalent = 22557,
+	},
+ }
 --------------------------------------------------------------------------------
 local function UpdateQueue()
 	-- normal queue
@@ -340,6 +425,7 @@ end
 local function GetBuff(buff)
 	local left = 0
 	local _, expires
+	if tonumber(buff) then buff = GetSpellInfo(buff) end 
 	_, _, _, _, _, expires = AuraUtil.FindAuraByName( buff, "player", "PLAYER")
 	if expires then
 		left = max(0, expires - s_ctime - s_gcd)
@@ -350,7 +436,8 @@ end
 local function GetDebuff(debuff)
 	local left = 0
 	local _, expires
-	_, _, _, _, _, expires = AuraUtil.FindAuraByName( buff, "target", "PLAYER")
+	if tonumber(debuff) then debuff = GetSpellInfo(debuff) end 
+	_, _, _, _, _, expires = AuraUtil.FindAuraByName( debuff, "target", "PLAYER")
 	if expires then
 		left = max(0, expires - s_ctime - s_gcd)
 	end
@@ -375,14 +462,12 @@ local function GetStatus()
 	--	s_bc = GetBuff(buffBC)
 
 	-- the buffs
-	if (talent_DivinePurpose) then
-		s_buff_DivinePurpose = GetBuff(ln_buff_DivinePurpose)
-	else
-		s_buff_DivinePurpose = 0
-	end
-	s_buff_TheFiresOfJustice = GetBuff(ln_buff_TheFiresOfJustice)
+        s_buff_TheFiresOfJustice = GetBuff(ln_buff_TheFiresOfJustice)
         s_buff_Crusade = GetBuff(ln_buff_Crusade)
         s_buff_ChengPiFeng = GetBuff(ln_buff_ChengPiFeng)
+        s_buff_Inquisition = GetBuff(ln_buff_Inquisition)
+        s_buff_ZhengYiCaiJue = GetBuff(ln_buff_ZhengYiCaiJue)
+        s_buff_DivinePurpose = GetBuff(ln_buff_DivinePurpose)
 
 	-- the debuffs
 	s_debuff_Judgement = GetDebuff(ln_debuff_Judgement)
@@ -478,10 +563,13 @@ function xmod.Rotation()
 		debug:AddBoth("haste", s_haste)
 
 		debug:AddBoth("dJudgement", s_debuff_Judgement)
-		debug:AddBoth("bDivinePurpose", s_buff_DivinePurpose)
+		debug:AddBoth("bDP", s_buff_DivinePurpose)
 		debug:AddBoth("bTFOJ", s_buff_TheFiresOfJustice)
                 debug:AddBoth("bC", s_buff_Crusade)
                 debug:AddBoth("bCPF", s_buff_ChengPiFeng)
+                debug:AddBoth("bI", s_buff_Inquisition)
+                debug:AddBoth("bZYCJ", s_buff_ZhengYiCaiJue)
+
                 debug:AddBoth("dExecutionSentence", s_debuff_ExecutionSentence)
 	end
 	local action
@@ -501,6 +589,9 @@ function xmod.Rotation()
 	s_buff_DivinePurpose = max(0, s_buff_DivinePurpose - s_otime)
         s_buff_Crusade = max(0, s_buff_Crusade - s_otime)
         s_buff_ChengPiFeng = max(0, s_buff_ChengPiFeng - s_otime)
+        s_buff_Inquisition = max(0, s_buff_Inquisition - s_otime)
+        s_buff_ZhengYiCaiJue = max(0, s_buff_ZhengYiCaiJue - s_otime)
+
 
 	-- adjust debuffs
 	s_debuff_Judgement = max(0, s_debuff_Judgement - s_otime)
@@ -524,10 +615,12 @@ function xmod.Rotation()
 		debug:AddBoth("hp", s_hp)
 		debug:AddBoth("haste", s_haste)
 		debug:AddBoth("dJudgement", s_debuff_Judgement)
-		debug:AddBoth("bDivinePurpose", s_buff_DivinePurpose)
+		debug:AddBoth("bDP", s_buff_DivinePurpose)
 		debug:AddBoth("bTFOJ", s_buff_TheFiresOfJustice)
                 debug:AddBoth("bC", s_buff_Crusade)
                 debug:AddBoth("bCPF", s_buff_ChengPiFeng)
+                debug:AddBoth("bI", s_buff_Inquisition)
+                debug:AddBoth("bZYCJ", s_buff_ZhengYiCaiJue)
                 debug:AddBoth("dExecutionSentence", s_debuff_ExecutionSentence)
 	end
 	s2, action = GetNextAction()
