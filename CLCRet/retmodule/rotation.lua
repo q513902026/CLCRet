@@ -425,8 +425,7 @@ end
 local function GetBuff(buff)
 	local left = 0
 	local _, expires
-	if tonumber(buff) then buff = GetSpellInfo(buff) end 
-	_, _, _, _, _, expires = LibAuraUtil.FindBuffBySpell( buff, "player", "PLAYER")
+	_, _, _, _, _, expires = LibAuraUtil.UnitBuff( buff, "player", "PLAYER")
 	if expires then
 		left = max(0, expires - s_ctime - s_gcd)
 	end
@@ -436,8 +435,7 @@ end
 local function GetDebuff(debuff)
 	local left = 0
 	local _, expires
-	if tonumber(debuff) then debuff = GetSpellInfo(debuff) end 
-	_, _, _, _, _, expires =  LibAuraUtil.FindDebuffBySpell( debuff, "target", "PLAYER")
+	_, _, _, _, _, expires =  LibAuraUtil.UnitDebuff( debuff, "target", "PLAYER")
 	if expires then
 		left = max(0, expires - s_ctime - s_gcd)
 	end

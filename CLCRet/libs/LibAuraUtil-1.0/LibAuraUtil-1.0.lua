@@ -74,6 +74,7 @@ function LibAuraUtil.FindAuraBySpell(spell,unit,filter)
 		return UnitAura(unit,tonumber(spell) and GetSpellInfo(spell) or spell ,nil,filter)
 	end
 end
+
 function LibAuraUtil.FindDebuffBySpell(spell,unit,filter)
 		if AuraUtil then
 		if tonumber(spell) then
@@ -85,6 +86,7 @@ function LibAuraUtil.FindDebuffBySpell(spell,unit,filter)
 		return UnitDebuff(unit,tonumber(spell) and GetSpellInfo(spell) or spell ,nil,filter)
 	end
 end
+
 function LibAuraUtil.FindBuffBySpell(spell,unit,filter)
 		if AuraUtil then
 		if tonumber(spell) then
@@ -96,6 +98,7 @@ function LibAuraUtil.FindBuffBySpell(spell,unit,filter)
 		return UnitBuff(unit,tonumber(spell) and GetSpellInfo(spell) or spell ,nil,filter)
 	end
 end
+
 LibAuraUtil.UnitBuff = LibAuraUtil.FindBuffBySpell
 LibAuraUtil.UnitDebuff = LibAuraUtil.FindDebuffBySpell
 LibAuraUtil.UnitAura = LibAuraUtil.FindAuraBySpell
